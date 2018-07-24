@@ -31,7 +31,7 @@ $(package)_config_opts += -no-iconv
 $(package)_config_opts += -no-gif
 $(package)_config_opts += -no-freetype
 $(package)_config_opts += -no-nis
-$(package)_config_opts += -no-pch
+$(package)_config_opts += -pch
 $(package)_config_opts += -no-qml-debug
 $(package)_config_opts += -nomake examples
 $(package)_config_opts += -nomake tests
@@ -139,7 +139,6 @@ define $(package)_preprocess_cmds
   sed -i.old "s|QMAKE_LFLAGS            = |QMAKE_LFLAGS            = $($(package)_ldflags) |" qtbase/mkspecs/win32-g++/qmake.conf && \
   sed -i.old "s|QMAKE_CXXFLAGS          = |QMAKE_CXXFLAGS            = $($(package)_cxxflags) $($(package)_cppflags) |" qtbase/mkspecs/win32-g++/qmake.conf
 endef
-
 define $(package)_config_cmds
   export PKG_CONFIG_SYSROOT_DIR=/ && \
   export PKG_CONFIG_LIBDIR=$(host_prefix)/lib/pkgconfig && \
@@ -150,13 +149,11 @@ define $(package)_config_cmds
   cd translations && ../../qtbase/bin/qmake translations.pro -o Makefile && cd ../.. &&\
   cd qttools/src/linguist/lrelease/ && ../../../../qtbase/bin/qmake lrelease.pro -o Makefile
 endef
-
 define $(package)_build_cmds
   $(MAKE) -C src $(addprefix sub-,$($(package)_qt_libs)) && \
   $(MAKE) -C ../qttools/src/linguist/lrelease && \
   $(MAKE) -C ../qttranslations
 endef
-
 define $(package)_stage_cmds
   $(MAKE) -C src INSTALL_ROOT=$($(package)_staging_dir) $(addsuffix -install_subtargets,$(addprefix sub-,$($(package)_qt_libs))) && cd .. &&\
   $(MAKE) -C qttools/src/linguist/lrelease INSTALL_ROOT=$($(package)_staging_dir) install_target && \
@@ -165,7 +162,6 @@ define $(package)_stage_cmds
     cp qtbase/src/plugins/platforms/xcb/xcb-static/libxcb-static.a $($(package)_staging_prefix_dir)/lib; \
   fi
 endef
-
 define $(package)_postprocess_cmds
   rm -rf native/mkspecs/ native/lib/ lib/cmake/ && \
   rm -f lib/lib*.la lib/*.prl plugins/*/*.prl
